@@ -392,3 +392,41 @@ dgx-spark-dsv4/
 └── config/
     └── network.md             # Network topology, RoCE config, NFS setup
 ```
+
+## Recovery After Power Cycle (2026-05-17)
+
+After power cycling both DGX Sparks, the following steps are needed:
+
+### 1. Remount NFS on spark-1
+```bash
+sudo mount 192.168.100.2:/home/sunil/models /home/sunil/models -t nfs -o vers=4,ro
+ls /home/sunil/models/DeepSeek-V4-Flash/config.json  # verify
+```
+
+### 2. Start worker on spark-1
+```bash
+bash /home/sunil/launch_worker_headless.sh
+```
+
+### 3. Start head on spark-2
+```bash
+nohup bash /home/sunil/launch_head_server.sh > /tmp/vllm_head.log 2>&1 &
+tail -f /tmp/vllm_head.log  # watch progress
+```
+
+### 4. After ~10 min, verify:
+```bash
+curl http://localhost:8000/health
+```
+
+### 5. Update Hermes to restore FreeLinus to spark-2:
+```bash
+# On raoDesktop-wsl:
+cp /home/sunil/.hermes/config.yaml.bak_spark2_down /tmp/bak.yaml
+# Change base_url back to http://100.117.56.97:8000/v1 in config.yaml
+systemctl --user restart hermes-gateway.service
+```
+
+### Image: vllm-dsv4-jasl:latest
+Same as original jasl fork (`dda4668b5`), locally cached as `vllm-dsv4-jasl:latest`.
+Key env vars: TORCH_CUDA_ARCH_LIST=12.1a, VLLM_TRITON_MLA_SPARSE=1, VLLM_MEMORY_PROFILER_ESTIMATE_CUDAGRAPHS=0
