@@ -53,7 +53,7 @@ exec docker run --name "$CONTAINER" \
     --enable-prefix-caching \
     --max-model-len 1048576 \
     --max-num-seqs 1 \
-    --max-num-batched-tokens 32768 \
+    --max-num-batched-tokens 16384 \
     --gpu-memory-utilization 0.90 \
     --no-enable-flashinfer-autotune \
     '--compilation-config={"cudagraph_mode":"FULL_AND_PIECEWISE","custom_ops":["all"]}' \
