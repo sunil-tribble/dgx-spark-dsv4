@@ -430,3 +430,28 @@ systemctl --user restart hermes-gateway.service
 ### Image: vllm-dsv4-jasl:latest
 Same as original jasl fork (`dda4668b5`), locally cached as `vllm-dsv4-jasl:latest`.
 Key env vars: TORCH_CUDA_ARCH_LIST=12.1a, VLLM_TRITON_MLA_SPARSE=1, VLLM_MEMORY_PROFILER_ESTIMATE_CUDAGRAPHS=0
+
+## Stability Fixes (2026-05-18)
+
+### Critical patches applied (baked into `vllm-dsv4-patched:latest`)
+
+1. **VLLM_RINGBUFFER_WARNING_INTERVAL=300** — Increases shm_broadcast timeout from 60s to 300s.
+   - Root cause: Triton JIT compilation during inference takes 15-30s per kernel, triggering the 60s shm_broadcast deadlock
+   - Fix: Env var allows JIT to complete without deadlocking
+   - File: `vllm/envs.py` — `VLLM_RINGBUFFER_WARNING_INTERVAL` defaults to 60, set to 300
+
+2. **Follower collective_rpc guard** — Prevents WorkerProc init failure.
+   - Root cause: V1 engine follower calls `collective_rpc` during `_initialize_kv_caches`
+   - Fix: `if self.rpc_broadcast_mq is None: return []` guard in `multiproc_executor.py:350`
+
+3. **Persistent Triton kernel cache** — `vllm-triton-cache` Docker volume
+   - Mount: `-v vllm-triton-cache:/root/.triton`
+   - Prevents ~8 kernel JIT compilations on every container restart
+
+4. **GPU memory utilization 0.87→0.90** — Required for 1M context KV cache with enforce_eager changes
+
+### Power cycle recovery (updated)
+After power cycle, also push image to spark-1:
+```bash
+docker save vllm-dsv4-patched:latest | ssh -C sunil@192.168.100.1 "docker load"
+```
