@@ -1,0 +1,23 @@
+SERVER UP - running benchmark
+=================================================================
+SPEC=2 ABLITERATED DSV4 FLASH — PHYSICS LIMIT ANALYSIS
+=================================================================
+Throughput run 1: 300 tok | 29.7 tok/s | think=424 chars
+Throughput run 2: 300 tok | 2.8 tok/s | think=433 chars
+Throughput run 3: 300 tok | 1.6 tok/s | think=423 chars
+
+--- GPQA Physics ---
+1474 tok | 24 tok/s | think=2363 chars
+Answer: The rotational energy loss rate (spin-down luminosity) of the Crab pulsar is calculated as follows:
+
+- Moment of inertia: \( I = \frac{2}{5} M R^2 = \frac{2}{5} (2.8 \times 10^{30} \, \text{kg}) (10^4 \, \text{m})^2 = 1.12 \times 10^{38} \, \text{kg} \cdot \text{m}^2 \)
+- Angular frequency: \( \omega = \frac{2\pi}{P} = \frac{2\pi}{0.033 \, \text{s}} \approx 190.4 \, \text{rad/s} \)
+- Period deriva
+
+--- Competition Math ---
+6000 tok | 30 tok/s | think=14500 chars
+Traceback (most recent call last):
+  File "/home/sunil/full_bench.py", line 32, in <module>
+    print(f"Answer: {c[:400]}")
+                     ~^^^^^^
+TypeError: 'NoneType' object is not subscriptable

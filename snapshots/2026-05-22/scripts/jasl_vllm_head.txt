@@ -1,0 +1,4 @@
+dda4668b59567416f86956cfe7bbc1eab371a61e
+jasl
+Wed May 13 11:39:59 2026 +0800
+Restore rowwise paged-MQA logits kernel for SM12x long context

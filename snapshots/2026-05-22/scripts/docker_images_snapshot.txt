@@ -1,0 +1,17 @@
+vllm-dsv4-quantizer:v3	c49b48a63dff	20.4GB	44 hours ago
+vllm-node-dsv4:latest	8fe13c045729	20GB	2 days ago
+vllm-dsv4-quantizer:latest	bc424fa4e24c	20GB	2 days ago
+vllm-dsv4-patched:latest	747a8395cb28	19.6GB	3 days ago
+vllm-dsv4-jasl:latest	3a8670679f87	19.6GB	5 days ago
+ghcr.io/ggml-org/llama.cpp:full-cuda13	a8b38c610725	4.41GB	10 days ago
+lmxxf/vllm-deepseek-v4-dgx-spark:latest	47c822f7f355	19.2GB	11 days ago
+ds9-fast-map-train:qwen36-modelopt	651b3b1da2d3	19.6GB	2 weeks ago
+ds9-fast-map-train:qwen36	748c3ba77772	19.6GB	2 weeks ago
+ds9-fast-map-train:gb10	00c36fa906c2	19.5GB	2 weeks ago
+avarok/atlas-gb10:latest	f116b3bea58d	2.79GB	2 weeks ago
+local/vllm-qwen36:26.04-tf57	c2d6b67195f4	19.2GB	3 weeks ago
+nvcr.io/nvidia/vllm:26.04-py3	922ce0c54006	19.1GB	5 weeks ago
+alpine:latest	2ffb2ff4aab3	8.7MB	5 weeks ago
+avarok/dgx-vllm-nvfp4-kernel:v22	540e45fe4609	22.7GB	3 months ago
+nvcr.io/nvidia/cuda:13.0.1-base-ubuntu24.04	bd59924159b3	415MB	8 months ago
+vllm/vllm-openai:v0.9.0.1	786684817fd3	20.8GB	11 months ago
