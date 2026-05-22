@@ -90,3 +90,23 @@ For c=1 throughput on this exact hardware:
 To break 30 t/s at c=1, fundamental work needed (NVFP4 attention requantization or FastMTP head retraining).
 
 If aggregate throughput across concurrent requests is acceptable, c=8 already delivers **57.14 t/s** (see GOAL_40_TPS.md).
+
+## Update: Vanilla model swap test (2026-05-22 17:35 UTC)
+
+To rule out abliteration overhead as the cause of slower per-token decode
+vs the harness's 35.3 t/s, restarted the cluster with the vanilla
+`DeepSeek-V4-Flash` model (not `-abliterated-v3`). All other settings
+identical (Conv profile, MTP=2, FP8 KV, etc).
+
+| Workload (c=1, T=0) | Abliterated peak | Vanilla peak |
+|---|---:|---:|
+| Predictable code (10 prompts) | 27.87 | 26.93 |
+| Sequence completion (15-iter sustained) | 26.12 | **28.69** |
+| Random words 200-tok forced | 16.81 | 24.40 |
+
+Vanilla showed marginal improvement (peak 28.69 vs 27.87) — within
+noise. Both confirm the ~28 t/s c=1 ceiling is hardware/model bandwidth,
+not the abliterated weight modification.
+
+**Conclusion stands:** the 40 t/s @ c=1 goal is above what this hardware
++ model + speculative-decoding combination can deliver.
