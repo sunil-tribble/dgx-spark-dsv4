@@ -128,3 +128,40 @@ Deployed 2026-05-24 on spark-2 (10.117.1.215:8096), llama.cpp build 9304.
 
 Variance <0.5 t/s — extremely consistent. ~86% of the bandwidth roofline ceiling
 (10 GB active × 273 GB/s LPDDR5X = ~27 t/s no-spec).
+
+## Max-context push (2026-05-24)
+
+Bumped from 32K → **196608 (192K)** by switching KV cache from q8/q8 → q4_0/q4_0.
+
+| | 32K q8/q8 | **192K q4_0/q4_0** | Δ |
+|---|---:|---:|---|
+| ctx | 32,768 | **196,608** | **6×** |
+| KV @ full | 4.2 GB | 12.4 GB | +3× |
+| total resident | 117 GB | **120.5 GB** | +3% |
+| mean decode | 23.34 t/s | **23.55 t/s** | **+1%** |
+| peak decode | 23.54 t/s | **23.92 t/s** | +1.6% |
+| TPOT | 42.7 ms | 42.5 ms | -0.5% |
+
+**Free win**: 6× context unlocked, zero speed regression. q4_0 KV at single-stream
+short prompts has same per-step cost as q8 (active KV reads are tiny — cost
+shows up only at near-full ctx, where the long-prompt prefill dominates anyway).
+
+192K = MiniMax-M2.7's training-time maximum (`n_ctx_train` in the GGUF). The
+model card lists 1M but that requires YaRN extrapolation; the GGUF itself
+caps at 192K. Going past that requires `--yarn-orig-ctx 196608 --rope-scaling yarn`
++ a scaling factor — quality at scaled ctx is worse than at native.
+
+### Live config
+
+```
+CTX=196608  KTYPE=q4_0  VTYPE=q4_0  bash launch_maxctx.sh
+```
+
+Same flags as `launch.sh`, just parameterized. Memory used: 120 GB / 121 GB usable
+(tight but stable). On crash/OOM: drop to `CTX=131072` for safe 128K + 4 GB headroom.
+
+### Verified at 4K real prompt
+
+Long-context needle-in-haystack with the new 192K cache:
+- prefill 385 t/s, decode 17.55 t/s (decode slows at long ctx due to attention)
+- correctly extracted `QUARTZ-VIOLET-7331` from filler-buried needle
