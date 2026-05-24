@@ -1,0 +1,21 @@
+[Unit]
+Description=llama-server MiniMax-M2.7 UD-IQ4_XS on DGX Spark
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=sunil
+WorkingDirectory=/home/sunil
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+LimitMEMLOCK=infinity
+ExecStart=/home/sunil/launch_minimax_m27.sh
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:/home/sunil/llama-minimax27.log
+StandardError=append:/home/sunil/llama-minimax27.log
+
+[Install]
+WantedBy=multi-user.target
