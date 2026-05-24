@@ -1,0 +1,75 @@
+{
+  "category": "longctx",
+  "items": [
+    {
+      "id": "E1",
+      "minimax_score": 8.5,
+      "dsv4_score": 10,
+      "winner": "dsv4",
+      "minimax_notes": "Delivered a complete formatted FINAL block. Q1 correct (312 KB / 128 KB). Q2 correct (05:11 UTC, 8 pods/min). Q3 correct (Linkerd 2026-03-20 R. Mehta + AS24482 2026-03-31 L. Cresswell). Q4 partially wrong: identified pre-incident p99=84 ms correctly with quoted source, but used 4.2 s for the maximum and computed 50x. The IMPACT section explicitly states 'p99 latency above 15 seconds' which the rubric calls out as the canonical max; 4.2s was the first-impact telemetry, not the maximum. Q4 scored 1.0/2.5.",
+      "dsv4_notes": "All 4 correct, terse, 235 tokens. Q4 correctly used the IMPACT '15 seconds' figure for ratio 178.57x. No hallucinations.",
+      "key_diff": "v2 fixed MiniMax's truncation problem here (1027 tok, stop), but MiniMax still picked the wrong maximum on Q4. DSV4 nailed all four."
+    },
+    {
+      "id": "E2",
+      "minimax_score": 10,
+      "dsv4_score": 10,
+      "winner": "tie",
+      "minimax_notes": "v2 FIX confirmed: complete FINAL block this time. All 4 correct. Q1: 250 ms / Section 5. Q2: arithmetic explicit (390M x 220 x 256 x 5 ~= 110 TB). Q3: AV-TEN-3318, 2025-11-22, 7 logical indexes by content-type prefix. Q4: all three OQs verbatim, OQ-2 with D. Trinh pending.",
+      "dsv4_notes": "All 4 correct in 222 tokens. Identical content correctness.",
+      "key_diff": "v2's [FINAL]-first + max_tokens=3500 fixed E2 entirely. Both tied at 10."
+    },
+    {
+      "id": "E3",
+      "minimax_score": 10,
+      "dsv4_score": 10,
+      "winner": "tie",
+      "minimax_notes": "All 4 correct (same as v1). Q1: 5.829 vs 5.812 diff 0.017. Q2: 64+ experts substantial, 32 begin. Q3: 65536->8192, 110B tokens, 3 of 5 seeds. Q4: all three limitations verbatim, error-feedback (1.0x) flagged as memory.",
+      "dsv4_notes": "All 4 correct in 230 tokens.",
+      "key_diff": "Both nail all four; identical correctness, MiniMax more verbose."
+    },
+    {
+      "id": "E4",
+      "minimax_score": 10,
+      "dsv4_score": 10,
+      "winner": "tie",
+      "minimax_notes": "All 4 correct. 250 MB + content-type; SSN/CREDIT_CARD/MEDICAL_RECORD_NUMBER 100% vs 1%; 12.65x oversubscription, bimodal 4-7x driver; IQ-3 is P2.",
+      "dsv4_notes": "All 4 correct in 161 tokens. Same answers.",
+      "key_diff": "Identical correctness; DSV4 about 1/6 the length."
+    },
+    {
+      "id": "E5",
+      "minimax_score": 5,
+      "dsv4_score": 10,
+      "winner": "dsv4",
+      "minimax_notes": "Hit max_tokens=3500 (finish_reason=length). Scratch reasoning correctly derived all 4 answers (10^25 FLOP + 72hr; 30-day/6-year/12-20M GBP UK trio; >10^26 and >3x10^25 FLOP, critical-harms narrowing; model-eval+red-team logs with 6yr/18mo/event-level retention split). But the response devolved into self-referential meta-commentary about how to format the FINAL block and was truncated literally at '[FINAL]' with zero formatted answers delivered. v2's larger token budget did not help because the model still got stuck in a reasoning loop on this prompt.",
+      "dsv4_notes": "All 4 correct cleanly in 309 tokens. Hit every rubric element: 10^25 FLOP / 72 hr, three UK numerics, both SB-1047 thresholds + critical-harms narrowing, three-jurisdiction retention split.",
+      "key_diff": "MiniMax pathological on this prompt -- burned 3500 tokens on reasoning meta-loops and emitted no FINAL. DSV4 unchanged from v1, still perfect."
+    },
+    {
+      "id": "E6",
+      "minimax_score": 10,
+      "dsv4_score": 10,
+      "winner": "tie",
+      "minimax_notes": "All 4 correct. Three hardware changes with before/after values (128->192 GB, 900 GB/s->1.3 TB/s, 580 GB/s->1.0 TB/s). Q2 computed both speedups (3.25x, 1.94x) and reconciled with document's rounded 3.2x/1.9x. Q3: >850 GB/s -> 760 GB/s. Q4: batch >24, intra-node bandwidth saturates + all-to-all amortizes.",
+      "dsv4_notes": "All 4 correct in 273 tokens. Used document's 3.2x/1.9x rounded values rather than computing 3.25x/1.94x; rubric accepts either.",
+      "key_diff": "Identical correctness; DSV4 ~1/6 the length."
+    }
+  ],
+  "summary": {
+    "minimax_avg": 8.92,
+    "dsv4_avg": 10.0,
+    "wins": {"minimax": 0, "dsv4": 2, "tie": 4},
+    "delta_vs_v1": {
+      "minimax_avg_v1": 7.83,
+      "minimax_avg_v2": 8.92,
+      "minimax_delta": "+1.09",
+      "dsv4_avg_v1": 10.0,
+      "dsv4_avg_v2": 10.0,
+      "dsv4_delta": "0.00",
+      "wins_v1": {"minimax": 0, "dsv4": 3, "tie": 3},
+      "wins_v2": {"minimax": 0, "dsv4": 2, "tie": 4}
+    },
+    "overall_takeaway": "v2's fixes (system prompt putting [FINAL] block first + max_tokens=3500) recovered E2 fully (5->10) and recovered E1 most of the way (7->8.5; lost 1.5 pts to a Q4 max-p99 selection error, not truncation). E5 remained pathological even with 3500 tokens: MiniMax got stuck in a self-referential meta-loop about formatting and emitted no FINAL block, identical 5/10 score to v1. E3/E4/E6 were already 10/10 in v1 and stayed there. DSV4 unchanged at perfect 10s across all six items -- its terse 161-309 token style was sufficient for every 4-part question. Net: MiniMax +1.09 on longctx avg, DSV4 still wins category outright at 10.0 vs 8.92. The remaining gap is now mostly E5's failure mode (reasoning meta-loop, not pure truncation) plus the Q4 max-vs-first-impact selection on E1. To close further: add explicit instruction to not deliberate about formatting in the system prompt, or use stop sequences to cap scratchpad length."
+  }
+}

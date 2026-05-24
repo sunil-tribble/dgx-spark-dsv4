@@ -1,0 +1,79 @@
+{
+  "category": "synthesis",
+  "items": [
+    {
+      "id": "D1",
+      "minimax_score": 4,
+      "dsv4_score": 6,
+      "winner": "dsv4",
+      "minimax_notes": "v2 improvement: a [FINAL] section now appears at char ~19800 after extensive scratch-pad. The structured table partially covers (a), (b), (c) for all three architectures but is TRUNCATED mid-Mixtral mitigation paragraph and never reaches (d) — the batch=1 winner pick required by the rubric. Quality of covered content: mediocre. Correctly names bias-update mechanism for DeepSeek-V3 and aux-loss for Mixtral. 'Bias-update lag' framing is reasonable. Caching analysis is mostly hand-wavy ('caching may cause' / 'may avoid MoE experts') with no specific mechanism. NEVER distinguishes decode-time skew as a serial-routing problem (rubric item #3). Misses the all-to-all message-size reasoning entirely because (d) is cut off. Pre-FINAL scratch-pad shows the model internally reasoned toward Mixtral as the answer but flipped to DeepSeek-V3 mid-thought — but never delivers the conclusion. Some weak claims: 'shared expert may be placed on one node causing bottleneck' — actually replicated, well-known.",
+      "dsv4_notes": "Same response as v1, same evaluation: structured per-architecture answer hitting all four sub-questions. Correct bias-update mechanism with lagging-feedback weakness for DeepSeek-V3. Some claims still off — bias-update is for pretrain, not inference; KV-cache 'does not affect expert choice' is correct but oddly framed. Aux-loss-gradient-competition for Mixtral correct. Qwen3-Next analysis surface-level (no Gated DeltaNet specifics). Final bet on DeepSeek-V3 for batch=1 latency is defensible with concrete reasoning about top-8 across 8 nodes spreading load and small per-expert size. Missing precise all-to-all message-size numbers.",
+      "key_diff": "Minimax now reaches a structured answer but truncates before the rubric's required final bet (d) and provides shallower caching analysis; DSV4 delivers all four sub-parts with a defensible conclusion."
+    },
+    {
+      "id": "D2",
+      "minimax_score": 4,
+      "dsv4_score": 6,
+      "winner": "dsv4",
+      "minimax_notes": "v2 improvement: [FINAL] now appears early (char 724) but is immediately followed by ~20k chars of scratch-pad-as-prelude before any structured content. Structured content begins around char 21000. STRENGTH: correctly states the exact rejection-sampling formula min(1, P_target/P_draft) for draft-model and Medusa (which DSV4 misses!). Per-method tables for Draft (full) and Medusa (full) are good, with mechanism, acceptance, failure mode, and per-platform ceilings. Lookahead section starts but truncates after only the mechanism row. MISSING: full Lookahead acceptance/failure/ceiling, EAGLE/EAGLE-2 entirely, tree-based entirely, AND the final pick of method for 230B MoE on slow fabric (rubric's final synthesis item). Speedup numbers are reasonable. Hardware-ceiling reasoning is shaky — claims Grace-Blackwell C2C 'reduces overhead for on-node speculation loop' which is fine, but the deeper point that lower-mem-BW platforms benefit MORE from spec decoding is missed (same flaw as DSV4).",
+      "dsv4_notes": "Same as v1: hits all five families with (a)-(d) structure. CRITICAL WEAKNESS: never states the acceptance-criterion formula precisely — just 'rejection sampling on target output distribution' — losing the math rigor that minimax actually delivers in (b). Correctly distinguishes EAGLE feature-space from token-space and Lookahead as Jacobi on target. Hardware ceilings reasonable. Final pick of EAGLE-2 for 230B MoE on slow fabric is correctly defended (no separate large draft over network, lightweight feature-space draft).",
+      "key_diff": "Minimax has the exact acceptance formula (which DSV4 lacks) but only covers 2.x of 5 methods and never gives the final recommendation; DSV4 covers all 5 families and gives a defensible recommendation with weaker math rigor."
+    },
+    {
+      "id": "D3",
+      "minimax_score": 3,
+      "dsv4_score": 6,
+      "winner": "dsv4",
+      "minimax_notes": "v2 improvement: structured [FINAL] appears at char 19500 after scratch-pad. Covers CAP (section 1) fully and Consistency Models (section 2) for CockroachDB and Cassandra; truncates mid-FoundationDB consistency row. SERIOUS FACTUAL ERROR: states CockroachDB's default is 'Snapshot Isolation (SI)' with serializable as optional — this is WRONG. CockroachDB's default since v2.1 is SERIALIZABLE (SSI); SI was dropped years ago. The rubric explicitly requires 'CockroachDB: drops A during partition (CP); provides serializable isolation by default' — minimax inverts the default. Cassandra section is good: gossip + LWT/Paxos correctly identified, stale-read anomaly explained. FoundationDB partition behavior (CP, lease-based TM) is correct. MISSING: clock-skew section (c) entirely (no mention of CockroachDB self-killing on max-offset violation, rubric-required), workload section (d) entirely, and rubric's deterministic-simulation/transaction-resolver specifics for FDB. Most of the rubric is not addressed.",
+      "dsv4_notes": "Same as v1: structured answer with CAP, consistency models, anomalies, clock-skew, and workload table. CockroachDB CP + serializability default is correctly stated (rubric hit). Mentions clock-skew causing 'increased risk of anomalies or unavailability' but doesn't explicitly say 'node crashes/self-kills' (rubric required this exact behavior — partial hit). Cassandra AP + gossip + eventual + LWT mentioned, clock-skew 'negligible' for gossip is correct. FoundationDB strict serializability, lease-based coordinator, 1ms clock assumption stated; some loose claims about lease mismanagement, but FDB's real-world max-clock-skew tolerance is workload-dependent. Workload table is solid: financial ledger for CRDB, IoT for Cassandra, metadata-store for FDB. Missing deterministic-simulation architectural detail (rubric item).",
+      "key_diff": "Minimax has a critical factual error (CockroachDB default = SI), is truncated before reaching (c) and (d), and misses most rubric items; DSV4 has the correct CockroachDB default and covers all four sub-questions, with only minor rubric specificity gaps."
+    },
+    {
+      "id": "D4",
+      "minimax_score": 6,
+      "dsv4_score": 8,
+      "winner": "dsv4",
+      "minimax_notes": "v2 has TWO [FINAL] sections: a concise complete answer at char 9128 covering (a)-(d) for all three languages plus conclusion picking Rust, then ~5k chars of meta-reasoning about how to elaborate, then a second more detailed table-based [FINAL] which gets truncated mid (c) for Swift. STRENGTHS: concise version covers all rubric points adequately; mentions Polonius/NLL, ARC overhead for Swift, linear arrows for Linear Haskell. The detailed second version has explicit '%1 ->' arrow mention for Linear Haskell, ARC for Swift, ~Copyable mentioned. WEAKNESSES: does not use 'affine' for Rust (rubric item — though 'no aliasing for mutable references' captures the principle). Cross-language examples in (c) are vague ('mutable buffer with multiple non-aliasing mutable views' is abstract; self-referential linked list mentioned only in scratch-pad). The duplicated [FINAL] structure with intervening meta-text is sloppy and wastes the token budget. Detailed version truncated before completing (c), (d), or conclusion — concise version's complete conclusion saves the score.",
+      "dsv4_notes": "Same as v1: precise type-theoretic vocabulary. Calls out 'affine type system,' '%1 ->' for Linear Haskell, ~Copyable opt-out, ARC explicitly as runtime cost (unique-among-three rubric item). Concrete examples: doubly-linked list in Swift via classes, impossible without unsafe in Rust. Future-direction commentary is accurate (Polonius NLL successor, ~Copyable opt-in, multiplicity polymorphism). Conclusion picks Rust+Polonius with substantive 4-point defense. Strongest single response among all six.",
+      "key_diff": "Both produce real answers; DSV4 is materially more precise on type-theory vocabulary, has a concrete code example, and a more substantive conclusion. Minimax's duplicate-FINAL structure burns tokens on meta-text."
+    },
+    {
+      "id": "D5",
+      "minimax_score": 5,
+      "dsv4_score": 7,
+      "winner": "dsv4",
+      "minimax_notes": "v2 [FINAL] appears at char 460 (great placement!) but is immediately followed by ~10k chars of scratch-pad before structured content. The structured (a) section is EXCELLENT — full L^PPO formula with min(r_t*A, clip(r_t,1-eps,1+eps)*A), explicit TRPO delta KL constraint, three precise reasons what is lost (no monotonic improvement, no explicit KL bound, dependence on accurate baseline). (b) value-function section starts with reward structure and variance reduction but TRUNCATES mid-credit-assignment. MISSING ENTIRELY: (c) GRPO and its assumption (rubric item), (d) reference-model KL penalty and removal consequences (rubric item), and the 2024-2025 failure mode citation (rubric item). Despite the strong (a) content, ~3/5 rubric items are absent. The scratch-pad contains correct content for the missing sections (alignment faking, sycophancy, reward hacking citations) but none made it past the truncation.",
+      "dsv4_notes": "Same as v1: equally structured, hits all 5 sub-questions. Less mathematical detail on PPO formula than minimax's covered (a) section. Critic role: variance reduction + dense proxy + curse-of-horizon — good. GRPO: group-relative baseline V_hat=mean reward, with the right exchangeability assumption stated explicitly. KL penalty: prevents catastrophic forgetting / mode collapse — correct. 2024-2025 failure: 'reward overoptimization' citing 'RewardBench' and 'RLHF Workflow' papers — these are real published works, citation slightly thin. Concise but complete.",
+      "key_diff": "Minimax has the most rigorous PPO math of any response but covers only ~2/5 rubric items; DSV4 covers all 5 with less depth on (a) but full coverage of (c)-(d)-failure-mode."
+    },
+    {
+      "id": "D6",
+      "minimax_score": 4,
+      "dsv4_score": 7,
+      "winner": "dsv4",
+      "minimax_notes": "v2 [FINAL] at char 19628 after ~20k of scratch-pad. The structured section starts with a good overview and then a detailed (a) activation-memory table covering all 5 stacks. Quality of (a) is HIGH: Megatron CP with ring-attention correctly named, Ulysses all-to-all on QKV explained, FSDP2 lack-of-native-sequence-parallelism correctly identified, pipeline 1F1B schedule mentioned, JAX pjit/shard_map user-defined sharding noted. TRUNCATES mid-JAX activation row (last char: '`jax.check'). MISSING ENTIRELY: (b) sequence-parallel vs tensor-parallel primitive analysis (rubric required: TP all-reduce, SP all-gather, EP all-to-all — none stated), (c) H100-scale bottleneck analysis (rubric required: NVLink 900 GB/s OK for TP, IB 50 GB/s bottleneck for EP all-to-all — not mentioned), (d) recommendation for 230B MoE EP=8 TP=1 256k (rubric required: Ulysses+FSDP2/EP=8 combo — completely absent), FSDP2 per-parameter vs FSDP1 distinction. 4/5 rubric items missing. (a) content alone is good but not enough.",
+      "dsv4_notes": "Same as v1: comprehensive structured answer across all 4 sub-questions for all 5 stacks. Activation-memory analysis correct. Primitives correctly named: TP all-reduce per layer, Ulysses all-to-all for attention, FSDP all-gather/reduce-scatter, MoE all-to-all for token routing. Bottleneck analysis correct: NVLink for intra-node TP, InfiniBand 50 GB/s for inter-node all-to-all. Final recommendation: JAX pjit/shard_map for unified EP+SP+FSDP — defensible (though the rubric prefers Ulysses+EP=8 explicitly; JAX choice is reasonable alternative with shard_map giving explicit control). Missing FSDP2 vs FSDP1 distinction.",
+      "key_diff": "Minimax has good (a) detail but covers only 1/4 sub-questions and misses 4/5 rubric items; DSV4 covers all 4 sub-questions and 4/5 rubric items."
+    }
+  ],
+  "summary": {
+    "minimax_avg": 4.33,
+    "dsv4_avg": 6.67,
+    "wins": {
+      "minimax": 0,
+      "dsv4": 6,
+      "tie": 0
+    },
+    "v1_comparison": {
+      "minimax_v1_avg": 3.5,
+      "minimax_v2_avg": 4.33,
+      "minimax_delta": 0.83,
+      "dsv4_v1_avg": 6.67,
+      "dsv4_v2_avg": 6.67,
+      "dsv4_delta": 0.0,
+      "wins_v1": {"minimax": 0, "dsv4": 5, "tie": 1},
+      "wins_v2": {"minimax": 0, "dsv4": 6, "tie": 0}
+    },
+    "overall_takeaway": "v2 fixes the most catastrophic failure mode (4/6 non-responses in v1 become 6/6 partial responses in v2 with [FINAL] markers and actual structured content) but uncovers a NEW failure mode: minimax burns 80-95% of the 5000-token budget on scratch-pad reasoning before reaching the [FINAL] block, then produces 1000-3000 tokens of structured content that truncates mid-answer. Result: every minimax response is structurally incomplete — D1 missing (d), D2 covers 2.x of 5 methods and no final pick, D3 truncates mid-FoundationDB AND has a factual error (CockroachDB default = SI, wrong), D4 has a duplicated FINAL with truncation mid second version, D5 covers only (a)-(b-partial) of 5 sub-questions, D6 covers only (a) of 4 sub-questions. WHERE MINIMAX SHINES: when content is reached, it is technically excellent — D2 has the exact rejection-sampling acceptance formula DSV4 omits; D5 has the full PPO L^CLIP formula with three precise theoretical-loss reasons; D6's activation-memory analysis names ring-attention, Ulysses all-to-all, FSDP2 limitations correctly; D2's hardware-ceiling table is more detailed than DSV4's. NO HALLUCINATED SPECIFICS observed — all named techniques (Polonius, ARC, ~Copyable, %1 arrow, Ulysses, ring-attention, 1F1B, EAGLE, Medusa, Jacobi, Paxos LWT, Raft, NLL) are real and used correctly. The single factual error is CockroachDB's default isolation in D3. Net result: DSV4 sweeps 6-0-0 on this round (worse for minimax than v1's 5-0-1), because minimax now produces partial answers that get judged on completeness rather than non-answers that get a flat 2. The fix needed is to compress scratch-pad — either via a stricter system prompt forbidding pre-FINAL reasoning, or by raising max_tokens to ~12k, or by using a model that doesn't externalize its chain-of-thought. v2 delta: minimax avg +0.83 (3.5 -> 4.33), DSV4 unchanged at 6.67, win count went from 5-0-1 to 6-0-0 (minimax lost the D5 tie because its v2 response is more incomplete than v1's was)."
+  }
+}

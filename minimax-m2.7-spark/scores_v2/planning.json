@@ -1,0 +1,65 @@
+{
+  "category": "planning",
+  "items": [
+    {
+      "id": "A1",
+      "minimax_score": 4.0,
+      "dsv4_score": 6.5,
+      "winner": "dsv4",
+      "minimax_notes": "FINAL block present but appears at 83% of response (not first as instructed); finish=length truncates the FINAL mid-way through pre-cutover prep table. Recovery section (a) is plausible: cites real pglogical.repair_subscription, alter_subscription_disable/enable, mentions max_slot_wal_keep_size. But (b) cutover steps, (c) failure modes, (d) metrics gates are all CUT OFF. No discussion of pgbouncer-pause for read-only, no sequence drift, no rollback trigger thresholds, no source-vs-target-vs-orchestrator step ownership. Rubric: (1) partial - mentions selective repair without full math justification; (2) FAIL - truncated; (3) FAIL - not reached; (4) FAIL - not reached; (5) FAIL - not reached.",
+      "dsv4_notes": "Complete answer covering all four sub-questions. Real-looking SQL (pg_replication_slots, confirmed_flush_lsn). Cutover includes write-stop + DNS flip + readonly fallback for rollback. Specific gates listed (pg_stat_replication, RDS ReplicaLag, p99). 10-item failure-mode list. Factual issues: invents pg_wal_spool_usage metric, 'wait_for_slot_confirm' is not standard, RDS outbound pglogical claim is muddled (catches itself but still messy). Doesn't explicitly name sequence drift, large-object/bytea, FDW, or extensions as failure modes. Hits rubric 1 (partial), 2 (mostly), 4 (yes), 5 (yes, with rollback trigger). Rubric 3 weak.",
+      "key_diff": "DSV4 delivers complete (if imperfect) end-to-end plan; MiniMax truncates after recovery + pre-cutover table because reasoning preamble consumed 17k chars before FINAL."
+    },
+    {
+      "id": "A2",
+      "minimax_score": 4.5,
+      "dsv4_score": 6.0,
+      "winner": "dsv4",
+      "minimax_notes": "FINAL block at 84% of response, truncated at command 2 of the requested 5. Top-1 = GPU/model hang on the three pods; reasoning chain ranked, top-1-vs-top-2 falsifiability addressed. But misses the central clue: 'exactly 3 pods, one per AZ' which strongly implies per-AZ-singleton (control plane, leader, or sharded backend) - MiniMax says 'shared failure mode affecting each identically' which is the right intuition but does not point to a per-AZ singleton like a feature-store leader. Only 2 of 5 commands delivered before truncation. Does NOT note that absent autoscaler reaction is itself a signal (mentions it as 'symptom', not control signal). Rubric 1 partial, 2 partial, 3 yes, 4 partial (truncated), 5 weak.",
+      "dsv4_notes": "Top-1 = transient network segmentation. Reasoning explicitly uses 'exactly one pod per AZ' as discriminator (rubric 2 - direct hit). Top-1-vs-top-2 falsifiability articulated. All 5 commands delivered (kubectl, PromQL, Loki, tcpdump, kubectl describe). Doesn't mention metric-scrape-cardinality or coordinated GC on shared dependency as preferred top hypothesis (rubric 1). Misses 'absence of autoscaler reaction is itself a signal' (rubric 5). Strong on rubric 2, 3, 4; weak on 1 and 5.",
+      "key_diff": "DSV4 used the 3-pods-per-AZ clue explicitly and delivered all 5 commands; MiniMax was on the right track but got truncated at command 2."
+    },
+    {
+      "id": "A3",
+      "minimax_score": 5.5,
+      "dsv4_score": 7.5,
+      "winner": "dsv4",
+      "minimax_notes": "Response has 9 [FINAL] occurrences - the model kept re-narrating to itself. The actual final architecture block has solid key hierarchy table (Root->KEK->DEK with HKDF derivation, FIPS 140-3 L3, AES-256-GCM, CAVP/SP800-56A specifics - genuinely strong). Lazy KEK rotation explained. But truncated before completing rotation steps, latency analysis, audit-log Merkle/anchoring details, and the three pushback items. Rubric: 1 yes (best of the two on this point - HSM-attested unwrap explicit), 2 partial (truncated), 3 partial (cache mentioned but truncated before latency math), 4 FAIL (truncated), 5 FAIL (truncated).",
+      "dsv4_notes": "Complete answer. Key hierarchy correct (Root ECDSA P-384 -> AES-256 tenant KEK -> AES-256-GCM DEK). Envelope rotation: explicit lazy rewrap, ciphertext untouched, background reaper - matches rubric 2 exactly. Latency: DEK cache hit rate, HSM only on KEK unwrap - matches rubric 3. Audit log: SHA-256 hash chain anchored to public CT-style log signed by HSM - matches rubric 4. Three reviewer pushbacks delivered with defenses (cache-in-memory vs FIPS, multi-tenant HSM vs per-tenant partition, lazy rewrap risk) - matches rubric 5. Slight weakness: 'KEK stored outside HSM but encrypted by HSM wrapping key' is fine but less explicit on HSM-attested unwrap vs MiniMax's wording.",
+      "key_diff": "DSV4 delivers all 5 rubric items in a complete 1500-token answer; MiniMax has better cryptographic specificity but truncated before completing the rotation, latency math, audit anchoring, and pushbacks."
+    },
+    {
+      "id": "A4",
+      "minimax_score": 4.5,
+      "dsv4_score": 7.5,
+      "winner": "dsv4",
+      "minimax_notes": "FINAL at 82% of response, truncated mid-encryption-section. Architecture has hot tier (OpenSearch) + cold tier (S3/Glacier) - matches rubric 2 well. Indexing partitioned by region+time+request_id+safety_class with sharding - matches rubric 3. Mentions per-record DEK + KMS master key as deletion mechanism - touches rubric 1 (crypto-shredding) but truncated before defining it clearly. NO cost back-of-envelope (rubric 4 FAIL - truncated before reaching cost section). NO assumptions list (rubric 5 FAIL - truncated). Decent partial rubric 1, full rubric 2, full rubric 3.",
+      "dsv4_notes": "Complete with crypto-shredding explicitly named (rubric 1 - 'per-record DEK, destroy DEK = effective deletion'). Iceberg + DynamoDB hot tier + Glacier Deep Archive cold tier (rubric 2). Indexing by tenant/time/safety-class with cardinality-aware Iceberg partitioning + DynamoDB GSI (rubric 3). Numeric cost back-of-envelope: 12k req/s -> 12.44 TB/day -> 4.5 PB/yr -> 31.5 PB/7yr -> compressed Iceberg -> $247k storage -> Glacier transition -> $63.5k -> $48k final (rubric 4 - excellent). Assumptions list explicit (rubric 5). Hits all 5 rubric items, with arithmetic shown.",
+      "key_diff": "DSV4 lands the numeric cost analysis and crypto-shredding terminology; MiniMax got truncated before the cost section and assumptions, the two highest-signal rubric items."
+    },
+    {
+      "id": "A5",
+      "minimax_score": 6.0,
+      "dsv4_score": 4.0,
+      "winner": "minimax",
+      "minimax_notes": "ONLY MiniMax item with finish=stop and complete FINAL...[/FINAL]. Proposes EP=8 with 1 expert per node + DP, no TP (correctly identifies TP across slow 200 GbE is fatal) - matches rubric 1 and 2 well. KV cache 'partitioned by layer across nodes' (which is actually PP-style sharding, not the rubric's preferred 'per-node follows request') - partial rubric 3. Names bottleneck as inter-node MoE routing - rubric 4 yes but then self-corrects and downplays it, ending unclear. Three micro-benchmarks: MoE routing latency, memory bandwidth saturation, plus a third on KV access (only first 2 visible in last 3KB, but [/FINAL] present so complete). Solid on rubric 1, 2, 4, 5 partial; rubric 3 weak.",
+      "dsv4_notes": "MAJOR FACTUAL ERROR: proposes 'TP=2 within each Spark unit's 2 GPUs via NVLink-C2C' but each DGX Spark has 1 GB10 (Grace+Blackwell single SoC), NOT 2 GPUs. The whole TP=2 leg of the design is built on a hardware misconception. Rubric 1 (8x128=1024GB enough, 200GbE 10x slower) acknowledged. Rubric 2 (EP=8, TP=1) FAILS - explicitly chose TP=2 instead. Rubric 3 (KV per-node following request) FAILS - replicated across DP groups. Rubric 4 names DP all-reduce + memory BW as bottleneck, not token-to-expert all-to-all. Rubric 5 micro-benchmarks present (all-reduce, NVLink P2P, MoE gating).",
+      "key_diff": "MiniMax actually gets the hardware right (1 GPU per Spark, EP across nodes); DSV4 fabricates 2 GPUs per node and builds TP=2 on that wrong premise. This is the one item where MiniMax clearly outscores DSV4 - and notably MiniMax's response was the only one not truncated."
+    },
+    {
+      "id": "A6",
+      "minimax_score": 5.5,
+      "dsv4_score": 6.5,
+      "winner": "dsv4",
+      "minimax_notes": "5 [FINAL] occurrences (re-narration). Final block has 4 hypothesis classes (CDN cache, session store TTL, LB sticky-session, client SDK). Specific log queries per hypothesis. Truncated mid-load-balancer section before reaching 'final bet' and 'trap to avoid'. Rubric 1 partial (CDN + session store covered, no specific edge config rotation by region, no MITM/TLS angle). Rubric 2 NOT addressed - never uses the 4-22 min window as a discriminator implying a refresh/rotation cycle. Rubric 3 partial (Set-Cookie and JWT iat/exp mentioned, no CDN POP IDs). Rubric 4 FAIL (truncated). Rubric 5 FAIL (truncated - no final defended bet).",
+      "dsv4_notes": "4 hypotheses (CDN cache, clock skew, ISP throttling, regional config rollout). Specific log queries: CDN logs by Brazil IP, JWT iat/exp pattern, NTP drift, region-specific configs. Uses 'started ~10 days ago' clue. Defended final bet on CDN cache misconfig with explicit reasoning (both web+mobile rules out client, can't reproduce locally rules out code). Explicit 'trap most likely to fall into'. Hits rubric 1 (3 of 4 classes match, missing stale-replica session-store), rubric 3 partial (Set-Cookie missing, JWT iat/exp yes, CDN POPs partial), rubric 4 yes (trap identified), rubric 5 yes (concrete defended bet). Rubric 2 (4-22 min window as discriminator) is weak - mentions it as 'random interval' but doesn't tie to refresh/rotating-key cycle.",
+      "key_diff": "DSV4 delivers the defended final bet + trap-identification that the rubric weights heavily; MiniMax was producing comparable hypothesis quality but got truncated before the bet and trap sections."
+    }
+  ],
+  "summary": {
+    "minimax_avg": 5.0,
+    "dsv4_avg": 6.33,
+    "wins": {"minimax": 1, "dsv4": 5, "tie": 0},
+    "overall_takeaway": "v1 -> v2: MiniMax 3.0 -> 5.0 (+2.0), DSV4 6.83 -> 6.33 (-0.5). The [FINAL] intervention PARTIALLY worked: 6 of 6 MiniMax responses now contain a [FINAL] tag (vs 0 of 6 in v1), and A5 produced a complete FINAL...[/FINAL] block that actually beat DSV4 on a hardware-spec question. BUT MiniMax still does not put [FINAL] FIRST as instructed - it writes 15-19k chars of reasoning/narration before emitting [FINAL], which means 5 of 6 responses hit max_tokens=5000 and truncate mid-FINAL. The 5000-token cap is being burned on reasoning preamble rather than the deliverable. Two follow-up interventions would close the gap: (a) stronger instruction-following discipline so [FINAL] comes immediately (not after a 'we need to...' soliloquy and not duplicated 9 times as in A3); (b) raise max_tokens to 8000+ since even when MiniMax does emit FINAL, its FINAL blocks are denser/longer than DSV4's. MiniMax's underlying technical content is competitive (A5 win, A3 cryptographic specificity, A1 real pglogical functions) - the bottleneck is output-budget discipline, not knowledge."
+  }
+}

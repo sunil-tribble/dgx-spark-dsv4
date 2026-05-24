@@ -1,0 +1,33 @@
+endpoint: http://10.117.1.215:8000  model: deepseek-v4-flash  prompts: 30  system_prompt=v2-answer-first  max_tokens=raised
+  [ 1/30] A1 planning   out= 2216  wall=  99.6s  decode= 0.00  prefill=   0.0  finish=stop
+  [ 2/30] A2 planning   out=  668  wall=  29.8s  decode= 0.00  prefill=   0.0  finish=stop
+  [ 3/30] A3 planning   out= 1549  wall=  65.9s  decode= 0.00  prefill=   0.0  finish=stop
+  [ 4/30] A4 planning   out= 1139  wall=  50.8s  decode= 0.00  prefill=   0.0  finish=stop
+  [ 5/30] A5 planning   out= 1386  wall=  65.2s  decode= 0.00  prefill=   0.0  finish=stop
+  [ 6/30] A6 planning   out= 1408  wall=  52.8s  decode= 0.00  prefill=   0.0  finish=stop
+  [ 7/30] B1 code       out= 3264  wall= 130.1s  decode= 0.00  prefill=   0.0  finish=stop
+  [ 8/30] B2 code       out= 1043  wall=  37.2s  decode= 0.00  prefill=   0.0  finish=stop
+  [ 9/30] B3 code       out=  721  wall=  27.8s  decode= 0.00  prefill=   0.0  finish=stop
+  [10/30] B4 code       out= 2300  wall=  86.7s  decode= 0.00  prefill=   0.0  finish=stop
+  [11/30] B5 code       out= 1110  wall=  42.3s  decode= 0.00  prefill=   0.0  finish=stop
+  [12/30] B6 code       out= 1938  wall=  75.6s  decode= 0.00  prefill=   0.0  finish=stop
+  [13/30] C1 math       out= 2314  wall=  83.8s  decode= 0.00  prefill=   0.0  finish=stop
+  [14/30] C2 math       out= 1573  wall=  53.9s  decode= 0.00  prefill=   0.0  finish=stop
+  [15/30] C3 math       out= 1407  wall=  49.4s  decode= 0.00  prefill=   0.0  finish=stop
+  [16/30] C4 math       out= 5000  wall= 180.8s  decode= 0.00  prefill=   0.0  finish=length
+  [17/30] C5 math       out=  641  wall=  23.4s  decode= 0.00  prefill=   0.0  finish=stop
+  [18/30] C6 math       out= 1176  wall=  43.1s  decode= 0.00  prefill=   0.0  finish=stop
+  [19/30] D1 synthesis  out= 1141  wall=  48.9s  decode= 0.00  prefill=   0.0  finish=stop
+  [20/30] D2 synthesis  out=  835  wall=  35.8s  decode= 0.00  prefill=   0.0  finish=stop
+  [21/30] D3 synthesis  out=  645  wall=  28.8s  decode= 0.00  prefill=   0.0  finish=stop
+  [22/30] D4 synthesis  out= 1629  wall=  75.9s  decode= 0.00  prefill=   0.0  finish=stop
+  [23/30] D5 synthesis  out=  446  wall=  19.9s  decode= 0.00  prefill=   0.0  finish=stop
+  [24/30] D6 synthesis  out= 1675  wall=  73.7s  decode= 0.00  prefill=   0.0  finish=stop
+  [25/30] E1 longctx    out=  235  wall=  12.8s  decode= 0.00  prefill=   0.0  finish=stop
+  [26/30] E2 longctx    out=  222  wall=  12.8s  decode= 0.00  prefill=   0.0  finish=stop
+  [27/30] E3 longctx    out=  230  wall=  12.8s  decode= 0.00  prefill=   0.0  finish=stop
+  [28/30] E4 longctx    out=  161  wall=  10.6s  decode= 0.00  prefill=   0.0  finish=stop
+  [29/30] E5 longctx    out=  309  wall=  16.1s  decode= 0.00  prefill=   0.0  finish=stop
+  [30/30] E6 longctx    out=  273  wall=  15.0s  decode= 0.00  prefill=   0.0  finish=stop
+
+DONE. total wall = 1561.1s. results -> results_dsv4_v2.json
