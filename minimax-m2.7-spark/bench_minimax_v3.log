@@ -1,0 +1,33 @@
+endpoint: http://10.117.1.215:8096  model: minimax-m2.7  prompts: 30  system_prompt=v2-answer-first  max_tokens=raised
+  [ 1/30] A1 planning   out= 3614  wall= 181.9s  decode=20.06  prefill= 246.8  finish=stop
+  [ 2/30] A2 planning   out= 1922  wall=  90.4s  decode=21.59  prefill= 246.1  finish=stop
+  [ 3/30] A3 planning   out= 2872  wall= 138.8s  decode=20.88  prefill= 255.1  finish=stop
+  [ 4/30] A4 planning   out= 4453  wall= 227.3s  decode=19.68  prefill= 286.1  finish=stop
+  [ 5/30] A5 planning   out= 1818  wall=  84.2s  decode=21.92  prefill= 256.1  finish=stop
+  [ 6/30] A6 planning   out= 2017  wall=  93.2s  decode=21.85  prefill= 264.6  finish=stop
+  [ 7/30] B1 code       out= 3649  wall= 183.4s  decode=20.08  prefill= 287.3  finish=stop
+  [ 8/30] B2 code       out= 1582  wall=  72.4s  decode=22.25  prefill= 242.9  finish=stop
+  [ 9/30] B3 code       out= 1908  wall=  88.1s  decode=21.95  prefill= 255.2  finish=stop
+  [10/30] B4 code       out= 6000  wall= 324.2s  decode=18.59  prefill= 245.1  finish=length
+  [11/30] B5 code       out=  936  wall=  43.0s  decode=22.62  prefill= 273.9  finish=stop
+  [12/30] B6 code       out= 2145  wall= 100.6s  decode=21.62  prefill= 246.9  finish=stop
+  [13/30] C1 math       out= 1828  wall=  83.8s  decode=22.06  prefill= 304.6  finish=stop
+  [14/30] C2 math       out= 1504  wall=  67.4s  decode=22.58  prefill= 253.4  finish=stop
+  [15/30] C3 math       out= 1785  wall=  81.4s  decode=22.16  prefill= 293.4  finish=stop
+  [16/30] C4 math       out= 1733  wall=  78.0s  decode=22.41  prefill= 222.3  finish=stop
+  [17/30] C5 math       out=  905  wall=  40.1s  decode=23.04  prefill= 283.5  finish=stop
+  [18/30] C6 math       out= 1391  wall=  62.2s  decode=22.63  prefill= 270.2  finish=stop
+  [19/30] D1 synthesis  out= 3426  wall= 167.4s  decode=20.61  prefill= 264.5  finish=stop
+  [20/30] D2 synthesis  out= 1452  wall=  66.0s  decode=22.41  prefill= 244.9  finish=stop
+  [21/30] D3 synthesis  out= 2820  wall= 134.0s  decode=21.19  prefill= 271.1  finish=stop
+  [22/30] D4 synthesis  out= 1992  wall=  91.6s  decode=21.95  prefill= 270.2  finish=stop
+  [23/30] D5 synthesis  out= 1752  wall=  80.0s  decode=22.16  prefill= 282.4  finish=stop
+  [24/30] D6 synthesis  out= 3012  wall= 144.8s  decode=20.96  prefill= 255.1  finish=stop
+  [25/30] E1 longctx    out=  515  wall=  33.8s  decode=19.70  prefill= 303.8  finish=stop
+  [26/30] E2 longctx    out=  442  wall=  30.0s  decode=19.77  prefill= 306.1  finish=stop
+  [27/30] E3 longctx    out=  279  wall=  21.5s  decode=19.93  prefill= 306.2  finish=stop
+  [28/30] E4 longctx    out=  501  wall=  33.2s  decode=19.65  prefill= 305.0  finish=stop
+  [29/30] E5 longctx    out=  626  wall=  40.5s  decode=19.42  prefill= 294.3  finish=stop
+  [30/30] E6 longctx    out=  565  wall=  38.2s  decode=19.16  prefill= 305.6  finish=stop
+
+DONE. total wall = 2921.4s. results -> results_minimax_v3.json
