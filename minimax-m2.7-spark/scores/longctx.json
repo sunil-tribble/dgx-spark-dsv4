@@ -1,0 +1,65 @@
+{
+  "category": "longctx",
+  "items": [
+    {
+      "id": "E1",
+      "minimax_score": 7,
+      "dsv4_score": 10,
+      "winner": "dsv4",
+      "minimax_notes": "Reasoning identified all 4 answers correctly (312/128 KB, 05:11 UTC at 8 pods/min, the two March action items, 84ms->9.1s ratio ~108x). But finish_reason=length truncated the FINAL block partway through the Q3 table, so Q4 was never delivered in the user-visible answer. No hallucinations.",
+      "dsv4_notes": "All 4 questions answered concisely and correctly in 242 tokens. Q4 chose the IMPACT '15 s' figure (ratio 178.57) which the rubric explicitly accepts. Owners and dates on Q3 correct. No hallucinations.",
+      "key_diff": "MiniMax burned 1500 tokens on scratch reasoning and got truncated; DSV4 went straight to the FINAL block and delivered the full answer set."
+    },
+    {
+      "id": "E2",
+      "minimax_score": 5,
+      "dsv4_score": 10,
+      "winner": "dsv4",
+      "minimax_notes": "Long scratchpad reasoning correctly derived Q1 (250 ms / Section 5), Q2 (110,080 GB), and Q3 (AV-TEN-3318 / 2025-11-22 / 7-way partition). Then finish_reason=length truncated mid-Q4 listing only OQ-1 and the first letter of OQ-2. The FINAL block is essentially empty -- only '[FINAL]' delivered, no formatted answers reach the user.",
+      "dsv4_notes": "All 4 correct in 327 tokens. Q2 arithmetic 85.8 GB x 256 x 5 = 109,568 GB (rubric explicitly accepts close arithmetic vs the document's 86 GB rounding). Q4 listed all three OQs verbatim and correctly named D. Trinh as the pending response on OQ-2.",
+      "key_diff": "MiniMax answered everything in its scratchpad but emitted no formatted FINAL; DSV4 delivered a clean, complete formatted answer."
+    },
+    {
+      "id": "E3",
+      "minimax_score": 10,
+      "dsv4_score": 10,
+      "winner": "tie",
+      "minimax_notes": "All 4 correct. Q1: 5.829 vs 5.812, diff 0.017. Q2: gains begin at 32, substantial at 64+. Q3: width 65536->8192, divergence at 110B tokens, 3 of 5 seeds. Q4: all three limitations verbatim, error-feedback buffer (1.0x param size) identified as the memory one. No hallucinations.",
+      "dsv4_notes": "All 4 correct, concise. Q3 adds a brief attribution about 'increased collision rate causing systematic bias' which is a plausible inference but not strictly quoted from the document; mild but not a hallucination of facts. Q4 verbatim and memory limitation correctly flagged.",
+      "key_diff": "Both nail all four. MiniMax is more decorated with markdown tables; DSV4 is half the length. No factual difference."
+    },
+    {
+      "id": "E4",
+      "minimax_score": 10,
+      "dsv4_score": 10,
+      "winner": "tie",
+      "minimax_notes": "All 4 correct. 250 MB + content-type rejection; 100% sampling for SSN/CREDIT_CARD/MEDICAL_RECORD_NUMBER vs 1% otherwise; oversubscription 13,920/1,100=12.65x with bimodal 4-7x size driver; IQ-3 is P2.",
+      "dsv4_notes": "All 4 correct in 233 tokens. Same numbers, same P2 identification, same bimodal-distribution rationale. Clean and complete.",
+      "key_diff": "Identical correctness; DSV4 uses ~1/4 the tokens for the same answer quality."
+    },
+    {
+      "id": "E5",
+      "minimax_score": 5,
+      "dsv4_score": 10,
+      "winner": "dsv4",
+      "minimax_notes": "Scratchpad reasoning correct on all 4 (10^25 FLOP + 72hr; the 3 UK elements with 30-day/6-year/12-20M GBP; >10^26 training and >3x10^25 fine-tuning, narrowed to critical harms; model-eval+red-team logs with UK 6yr / US 18mo / EU Article 16 event-level). But finish_reason=length truncated FINAL mid-Q3 ('mass casualty ('). Q4 never delivered in FINAL.",
+      "dsv4_notes": "All 4 questions answered cleanly in 492 tokens. Hit every rubric element including the three numeric UK reserve figure (12-20M GBP), the critical-harms narrowing, and the three-jurisdiction retention split (UK 6yr / US 18mo / EU Article 16 event-level).",
+      "key_diff": "MiniMax again burned its 1500-token budget on reasoning and never finished the user-visible Q3/Q4; DSV4's terse style fit comfortably in budget."
+    },
+    {
+      "id": "E6",
+      "minimax_score": 10,
+      "dsv4_score": 10,
+      "winner": "tie",
+      "minimax_notes": "All 4 correct. Three changes with both before/after values (128->192 GB, 900 GB/s->1.3 TB/s, 580 GB/s->1.0 TB/s). Q2 computed both speedups (3.25x and 1.94x) and reconciled with document's 3.2x/1.9x. Q3: >850 GB/s threshold, drops to 760 GB/s. Q4: batch >24, intra-node bandwidth saturates and all-to-all amortizes.",
+      "dsv4_notes": "All 4 correct in 297 tokens. Hit every rubric number. Used the document's 3.2x/1.9x rounded speedups rather than computing 3.25x/1.94x from first principles; rubric accepts either form.",
+      "key_diff": "Identical correctness; DSV4 is one-fifth the length. MiniMax shows its arithmetic, DSV4 just states the conclusion."
+    }
+  ],
+  "summary": {
+    "minimax_avg": 7.83,
+    "dsv4_avg": 10.0,
+    "wins": {"minimax": 0, "dsv4": 3, "tie": 3},
+    "overall_takeaway": "Terseness emphatically helped DSV4, did not hurt it. The hot question reverses: MiniMax's verbose chain-of-thought ate its 1500-token budget on E1, E2, and E5, causing finish_reason=length truncation that left the FINAL block incomplete or empty even though the scratchpad reasoning had reached correct answers. DSV4 skipped the visible reasoning and went straight to formatted [FINAL] answers in 233-492 tokens, never once missing a question. On the three items where MiniMax did fit (E3, E4, E6) the two models tied at 10/10. So on long-context recall, DSV4's concise style was a pure asset here -- it was not too terse to cover 4-part questions, and it avoided the truncation tax MiniMax paid on half the items. Recommendation: cap MiniMax reasoning tokens or raise max_tokens for this category."
+  }
+}

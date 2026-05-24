@@ -1,0 +1,69 @@
+{
+  "category": "synthesis",
+  "items": [
+    {
+      "id": "D1",
+      "minimax_score": 2,
+      "dsv4_score": 6,
+      "winner": "dsv4",
+      "minimax_notes": "Response is entirely scratch-pad 'we need to discuss...' thinking that gets truncated at 2500 tokens with a '[FINAL]' marker but no actual final answer. Repeats the rubric back to itself and never delivers concrete mechanism-level content. Effectively non-answer.",
+      "dsv4_notes": "Structured per-architecture answer hitting all four sub-questions. Correctly explains DeepSeek-V3's bias-update mechanism with the lagging-feedback failure mode (good). Identifies expert thrashing/KV-cache interaction at decode (interesting but partly incorrect — DeepSeek uses MLA, not standard per-expert KV cache, and KV cache is per-token not per-expert). Aux-loss gradient-competition analysis for Mixtral is correct. Qwen3-Next analysis is partly speculative (calls linear-attention 'Mamba-2 or FlashAttention-3 with linear complexity' — FlashAttention-3 is not linear; Qwen3-Next uses Gated DeltaNet). Final bet on Qwen3-Next for batch=1 latency is defensible and matches the rubric's intent. Missing precise quantitative all-to-all message-size reasoning.",
+      "key_diff": "Minimax produced no final answer; DSV4 produced a structured but partially error-laced one."
+    },
+    {
+      "id": "D2",
+      "minimax_score": 2,
+      "dsv4_score": 6,
+      "winner": "dsv4",
+      "minimax_notes": "Pure thinking/planning text repeating the prompt structure, truncated at 2500 tokens before any '[FINAL]' content. Mentions correct rejection-sampling formula p_target/(c*p_draft) in scratch but never delivers a structured answer. Non-response.",
+      "dsv4_notes": "Hits all five families with (a)-(d) structure. CRITICAL WEAKNESS: never states the acceptance-criterion formula (min(1, p_target/p_draft) with residual sampling); just says 'rejection scheme that preserves exact distribution' — that's a rubric miss. Correctly distinguishes EAGLE feature-space from token-space and correctly identifies Lookahead as Jacobi on target. Hardware speedup numbers are reasonable but ceilings reasoning ('Grace-Blackwell has tight CPU-GPU integration') is hand-wavy and misses the key point that low-mem-BW platforms benefit MORE from spec decoding because target forward is memory-bound. Final pick of EAGLE-2 for 230B MoE on slow fabric is correctly defended (no separate large draft over network).",
+      "key_diff": "Minimax non-response; DSV4 hits structure and correct final recommendation but lacks the rigorous acceptance-formula and inverts the hardware-ceiling intuition."
+    },
+    {
+      "id": "D3",
+      "minimax_score": 2,
+      "dsv4_score": 6,
+      "winner": "dsv4",
+      "minimax_notes": "Scratch-pad text only. Discusses correct concepts internally (HLC, Raft, SSI, Paxos LWT for Cassandra, deterministic simulation) but truncates before any '[FINAL]' content. Non-answer.",
+      "dsv4_notes": "Structured answer with CAP, models, anomalies, clock-skew, and workload table. CockroachDB CP + Raft + HLC is correct, mentions node self-marking unhealthy under skew (rubric required 'crash/self-kill' — close enough). Cassandra AP + gossip + LWW with bad-timestamp data corruption correctly identified. FoundationDB section has notable errors: claims FDB 'allows fractured reads' violating strict serializability — false, FDB read versions guarantee strict serializability for read-only transactions; the phantom-read anomaly example for FDB is wrong. The 1ms clock assumption for FDB is also wrong (FDB does not depend on physical clocks for correctness in the same way as CockroachDB). Workload table is solid: financial ledger for CRDB, time-series for Cassandra, custom stateful for FDB. Missing the deterministic-simulation / transaction-resolver architectural specifics the rubric requested.",
+      "key_diff": "Minimax non-response; DSV4 covers structure correctly but materially mischaracterizes FoundationDB's consistency guarantees."
+    },
+    {
+      "id": "D4",
+      "minimax_score": 6,
+      "dsv4_score": 8,
+      "winner": "dsv4",
+      "minimax_notes": "FIRST actual final answer from minimax. Covers all four sub-questions for all three languages plus conclusion. Mostly accurate but generic: 'Rust uses affine types' is implied not stated; Swift section is vague on ~Copyable specifically (just says 'move-only'); Linear Haskell section misses the multiplicity-annotation %1 syntax precision. Examples in (c) are too abstract — 'complex aliasing patterns' is not concrete. Polonius/NLL relationship mentioned correctly. Conclusion picks Rust, defends adequately.",
+      "dsv4_notes": "Far more precise. Calls out 'aliasing XOR mutability' principle, gives the exact %1 -> arrow syntax for Linear Haskell, correctly identifies Swift 5.9's ~Copyable opt-out for non-copyable types, mentions ARC explicitly as runtime cost (unique to Swift among the three — rubric item). Concrete examples: Treiber stack easy in Rust, self-referential struct easy in Swift, linear file-handle natural in LinearHaskell. Future-direction commentary is accurate (Polonius location-based analysis, ~Copyable extending to enums/closures, multiplicity polymorphism for Linear Haskell). Conclusion correctly picks Rust+Polonius with substantive defense. Loses minor points for not explicitly framing Rust as 'affine' (it implies it via 'aliasing XOR').",
+      "key_diff": "Both gave real answers; DSV4 has materially more precise type-theoretic vocabulary and concrete cross-language examples."
+    },
+    {
+      "id": "D5",
+      "minimax_score": 7,
+      "dsv4_score": 7,
+      "winner": "tie",
+      "minimax_notes": "Strong structured answer covering all five sub-questions. PPO clip vs TRPO KL-trust-region trade-off correctly stated (loses monotonic improvement, gains first-order optimization). Critic role in sparse-reward setting explained correctly with credit-assignment framing. GRPO mathematical assumption (deterministic reward, group mean as value estimate) correctly identified. KL penalty role and removal consequences (reward hacking, mode collapse) all present. 2024-2025 failure mode: 'alignment faking' from Anthropic — this is a real published phenomenon (Greenblatt et al.), good citation. Slightly less mathematically precise than DSV4 on advantage estimation.",
+      "dsv4_notes": "Equally structured. Explicit formulas for L^CLIP and r_t(theta) — slightly more rigorous on the math. Correctly identifies monotonic-improvement loss for PPO. Critic role: variance reduction + dense proxy for sparse reward + curse-of-horizon — good. GRPO: symmetric/comparable assumption with group baseline V_hat = mean reward — correct. KL penalty: prevents mode collapse / language drift — correct. 2024-2025 failure: 'Sycophancy in RLHF' citing Anthropic and DeepMind — real published phenomenon (Sharma et al. 2023/24). Both citations are legitimate. Slightly less philosophical depth than minimax on why RLHF 'isn't real alignment'.",
+      "key_diff": "Roughly equivalent quality; minimax has slightly more conceptual depth on alignment-faking, DSV4 has slightly more mathematical formalism. Both hit all rubric items."
+    },
+    {
+      "id": "D6",
+      "minimax_score": 2,
+      "dsv4_score": 7,
+      "winner": "dsv4",
+      "minimax_notes": "Scratch-pad text only, walks through correct content internally (Ulysses all-to-all, Megatron TP+SP, FSDP all-reduce, JAX pjit, MoE EP all-to-all) but truncates at 2500 before any '[FINAL]' marker output. Non-answer.",
+      "dsv4_notes": "Comprehensive structured answer. Correctly identifies activation memory scales O(L*S*H) and that Ulysses shards sequence dim while Megatron-SP shards non-tensor-parallel ops. Correctly names primitives: TP all-reduce per layer, Ulysses all-to-all for attention, FSDP all-gather/reduce-scatter, MoE all-to-all for token routing. Bottleneck analysis correct: NVLink for TP, InfiniBand for inter-node all-to-all (50 GB/s number is right: 400 Gb/s / 8 = 50 GB/s). Final recommendation: Ulysses + FSDP2 for 230B MoE EP=8 TP=1 256k — matches rubric intent of 'combine Ulysses with EP=8'. MISSING: explicit mention of FSDP2 per-parameter vs FSDP1 flat-parameter sharding distinction (rubric item) and shard_map giving most explicit control. Forward/backward pass primitive breakdown is detailed and largely accurate.",
+      "key_diff": "Minimax non-response; DSV4 nails the structural decomposition with correct primitives but misses two rubric specificity items."
+    }
+  ],
+  "summary": {
+    "minimax_avg": 3.5,
+    "dsv4_avg": 6.67,
+    "wins": {
+      "minimax": 0,
+      "dsv4": 5,
+      "tie": 1
+    },
+    "overall_takeaway": "Catastrophic format failure for minimax-m2.7: 4 of 6 responses (D1, D2, D3, D6) are pure chain-of-thought scratch-pad that gets truncated at the 2500-token limit before producing a final answer. Only D4 and D5 yield real responses, and D5 is competitive with DSV4. This appears to be a behavior where minimax burns its token budget restating the prompt and planning rather than answering. DSV4 delivers structured answers across all 6 prompts; quality is solid (6-8) with occasional factual slips (FoundationDB consistency mischaracterization in D3, KV-cache-per-expert confusion in D1, hardware-ceiling intuition inverted in D2). When both produce answers (D4, D5), DSV4 is slightly more rigorous on type theory and math; minimax is competitive on conceptual depth. Net result: DSV4 wins 5-0-1 on this category, primarily because minimax fails to produce answers rather than because DSV4 produces exceptional ones."
+  }
+}

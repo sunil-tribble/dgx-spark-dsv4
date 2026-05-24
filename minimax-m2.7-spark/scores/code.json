@@ -1,0 +1,65 @@
+{
+  "category": "code",
+  "items": [
+    {
+      "id": "B1",
+      "minimax_score": 1,
+      "dsv4_score": 3,
+      "winner": "dsv4",
+      "minimax_notes": "Pure stream-of-consciousness reasoning. Hit length=3000 cap while still debating whether to use RwLock vs sharding. ZERO code produced. The reasoning identifies key tradeoffs (sharded vs global LRU, RwLock semantics, deadlock concerns) but never commits to an implementation. Unusable.",
+      "dsv4_notes": "Produces a real (if buggy) striped design with 64 stripes, SpinLock, doubly-linked list nodes. CRITICAL BUGS: (1) Cast `*const Stripe` to `*const StripeInner` is UB — they are different sized structs with different layouts. (2) The list manipulation helpers `move_to_front`, `remove_node`, `add_to_front`, `add_to_free` are all empty stubs marked as 'omitted for brevity'. So LRU recency is completely non-functional. (3) `allocate_node` from free list 'simplified' to single-slot, broken. (4) Concurrent test does no contention/parallelism assertion. (5) Unsafe used heavily without per-block SAFETY justifications. Compiles? Likely no due to UnsafeCell layout cast and missing list ops. Does provide a deadlock proof sketch (lock-ordering) — that's correct.",
+      "key_diff": "DSV4 ships a non-functional skeleton; minimax ships nothing. DSV4 wins by default."
+    },
+    {
+      "id": "B2",
+      "minimax_score": 1,
+      "dsv4_score": 6,
+      "winner": "dsv4",
+      "minimax_notes": "Again, ran out at 3000 tokens with only design discussion. No code emitted at all. Reasoning shows awareness of rectangular padding, INF handling, dual updates — but never produces the function.",
+      "dsv4_notes": "Working classic 1-indexed O(n^3) Hungarian on padded square matrix of size m. PROBLEMS: (1) Padding with dummy WORKERS of cost 0 to size m is wrong direction — the rectangular variant should pad with dummy JOBS not workers (or use direct rectangular algorithm). With dummy workers having 0 cost for all jobs, the dummies will grab the cheapest jobs and force real workers onto worse (potentially inf) jobs. The optimal assignment for real workers is NOT preserved. (2) INF arithmetic: `cur = a[i0][j] - u[i0] - v[j]` with INF gives INF; then delta could become INF; `u[p[j]] += INF` corrupts potentials silently. No special handling. (3) Performance: size m=400 → 400^3 = 64M ops in pure Python with list indexing — borderline; likely 3-8s, may exceed 5s. (4) The feasibility check (raises if result[i]==-1) is downstream of a possibly wrong assignment. (5) Dual-update explanation is correct in spirit (mentions delta as min slack, reduced cost invariant). Compiles and runs on benign inputs; wrong on INF and on rectangular optimality.",
+      "key_diff": "DSV4 has working code that handles many cases; minimax has nothing. DSV4's rectangular padding direction is wrong but the core algorithm runs."
+    },
+    {
+      "id": "B3",
+      "minimax_score": 1,
+      "dsv4_score": 5,
+      "winner": "dsv4",
+      "minimax_notes": "Truly catastrophic output: spirals into ~60 lines of 'The class should also handle the case where the Redis client is...' repeating the same template. No code, no Lua script. Token-cap blow-out.",
+      "dsv4_notes": "Has a Lua script and TS class. PROBLEMS: (1) Uses `now` (seconds) as both score AND member of the ZSET — two requests within the same second collide on member and ZADD just updates the existing entry instead of adding a new one, undercounting requests. Should use unique members (e.g., `now..':'..request_id` or a counter). (2) No EXPIRE call — rubric explicitly requires EXPIRE for memory hygiene on inactive keys. (3) `remaining()` and `resetAt()` are NOT atomic — they use separate ZREMRANGEBYSCORE/ZCARD/time roundtrips outside any script, with the client's view of TIME, violating both atomicity and the 'use Redis TIME' rule for these methods. (4) `resetAt` returns now+window unconditionally instead of (oldest_score + window) — does not reflect actual reset time of sliding window. (5) Single-second resolution; clock skew ±2s rubric not directly addressed. POSITIVES: Lua script does use redis.call('TIME'); does prune then count then conditionally add atomically; types defined (no any in result). Argument addresses atomicity decently.",
+      "key_diff": "DSV4 gets the core sliding-window pattern but member collision and missing EXPIRE are notable bugs; minimax produces no code at all."
+    },
+    {
+      "id": "B4",
+      "minimax_score": 1,
+      "dsv4_score": 5.5,
+      "winner": "dsv4",
+      "minimax_notes": "Again capped at 3000 tokens with only design discussion. No C code emitted. Shows good awareness of path parsing, overflow detection, escape handling, but never writes a function.",
+      "dsv4_notes": "Complete C function attempted. BUGS: (1) Overflow detection broken: `long long val = strtoll(...)` then `val < INT64_MIN || val > INT64_MAX` is always false on platforms where long long == int64_t (i.e., everywhere relevant). strtoll on overflow returns LLONG_MAX/MIN and sets errno — neither checked. Rubric explicitly demands pre-multiplication overflow check; this is post-hoc and broken. (2) Leading zeros not rejected (strtoll accepts '01'); the test asserts that case fails but the implementation would actually succeed (returning val=1, *end is '}' or whatever). The test would FAIL. (3) Path parsing doesn't handle '[' immediately after first '.' segment properly; the array-handling branch under '{' is conditioned on `*p == '['` but path parsing already advanced p past key. (4) The string-skipping inside nested-skip handles escape `\\` by skipping one char but doesn't validate escape kinds (e.g., \\u). (5) For numbers it accepts '+' and '-' anywhere in the skip — sloppy but harmless. (6) Trailing-garbage check `IS_END(*end)` accepts ',' ']' '}' '\\0' — reasonable. POSITIVES: Actually streams, no allocations, no JSON lib, returns int, provides 8+ tests, has null-terminator argument. Compiles. Handles many of the rubric items even if imperfectly.",
+      "key_diff": "DSV4 ships compilable streaming code with the right structure; the overflow and leading-zero checks are buggy. Minimax produced no code."
+    },
+    {
+      "id": "B5",
+      "minimax_score": 1,
+      "dsv4_score": 2,
+      "winner": "dsv4",
+      "minimax_notes": "3000 tokens of meandering analysis that touches on the wait_for cancellation issue, discusses CancelledError vs aclose semantics, but never converges to 'these are the THREE bugs' or produces a corrected version. Notably DOES briefly mention the right cancellation issue but buries it and never declares it. No deliverable.",
+      "dsv4_notes": "Identifies bugs but MOSTLY WRONG. Bug 1 'queue full on release' is fabricated — returning size items to a size-maxsize queue is fine and standard. Bug 2 is vacuous — the existing finally block correctly returns the connection on exception. Bug 3 contradicts itself and ends on a non-issue. MISSES the actual rubric bugs: (a) `asyncio.wait_for` cancellation race that can drop the connection (Python <3.11 well-known issue) — completely missed. (b) `id(object())` produces non-unique IDs after GC — completely missed. (c) Connection silently dropped on CancelledError — missed. The 'corrected version' adds an except branch that double-returns connections (both except and finally put_nowait when `if conn['in_use']` is True — the except sets it False BEFORE the put, so the finally guard works, but the logic is fragile and STILL doesn't use asyncio.timeout() or shield(). Doesn't address locks question correctly either. Mostly fiction.",
+      "key_diff": "Both fail. DSV4 at least produced text with code; minimax produced no answer. DSV4 wins on completeness but the analysis is largely incorrect — neither would help a real engineer."
+    },
+    {
+      "id": "B6",
+      "minimax_score": 1,
+      "dsv4_score": 3.5,
+      "winner": "dsv4",
+      "minimax_notes": "3000 tokens of design exploration, no Go code. Reasoning identifies key issues (panic recovery in loop, wg vs ctx.Done in Shutdown, stats consistency) but never writes the struct.",
+      "dsv4_notes": "Real Go code with structure, but multiple serious bugs. (1) BROKEN TASK DISPATCH: Submit appends to `p.queue` (a slice) under mutex AND also tries a non-blocking send to `p.taskCh` via `select { default }`. The fast-path captures task by closure but does not pop from queue — so the slice grows indefinitely and tasks may be executed once via channel but the queue entry is orphaned. Workers only read from taskCh; there is no dispatcher draining the slice into taskCh. Queued tasks (when channel full) are NEVER executed. (2) `inFlight` is never incremented in the normal Submit path — only in Shutdown's drain loop. Stats.InFlight will always be 0. (3) Panic recovery: defers write `resultCh <- panic-error` but if panic occurs the normal `resultCh <- err` line is unreached — so single send, OK. But totalCompleted is incremented only on non-panic; that's fine. However `executeTask` returns err even after sending to resultCh, and worker discards it — fine. (4) Shutdown closes `done` channel which kills workers, THEN tries to drain the queue inline in a side goroutine using executeTask directly — bypassing workers entirely. So the 'drain' is single-threaded. (5) `context.WithCancel(ctx)` is called but cancel is never invoked — minor leak. (6) Stats consistency argument is REASONABLE: read counters under the mutex along with inFlight/queue to avoid tearing. POSITIVES: Has the right shape, Submit is non-blocking, panic recover present, done channel for worker exit. NEGATIVES: Tasks don't actually run from queue.",
+      "key_diff": "DSV4 ships compilable Go code with the right architecture skeleton but the task dispatch is fundamentally broken (queued tasks never execute). Minimax ships zero code."
+    }
+  ],
+  "summary": {
+    "minimax_avg": 1.0,
+    "dsv4_avg": 4.17,
+    "wins": {"minimax": 0, "dsv4": 6, "tie": 0},
+    "overall_takeaway": "Catastrophic showing by minimax-m2.7 on code: across all 6 prompts it never emitted compilable code, instead spending its 3000-token budget on stream-of-consciousness design deliberation that always hit the length cap mid-thought. One prompt (B3) literally degenerates into copy-paste loops ('The class should also handle the case where the Redis client...'). This looks like a model that cannot terminate reasoning and commit to output — a serious agentic-coding failure mode. DSV4 produces real code on every prompt; it has notable bugs on most (broken striped LRU list ops on B1, wrong rectangular padding on B2, ZSET member collision on B3, broken overflow check on B4, fabricated bug diagnosis on B5, undrained task queue on B6) but a working partial implementation beats no implementation in every head-to-head. DSV4 wins 6-0. Neither model is production-grade on the hardest items, but DSV4 is in another league for usability."
+  }
+}
