@@ -1,0 +1,16 @@
+[Unit]
+Description=llama-server MiniMax-M2.7 default (port 8096, reasoning off)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=sunil
+WorkingDirectory=/home/sunil
+ExecStart=/home/sunil/launch_8096_noreason.sh
+Restart=always
+RestartSec=10
+StandardOutput=append:/home/sunil/minimax_8096.log
+StandardError=append:/home/sunil/minimax_8096.log
+
+[Install]
+WantedBy=multi-user.target

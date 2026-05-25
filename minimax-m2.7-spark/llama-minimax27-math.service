@@ -1,0 +1,16 @@
+[Unit]
+Description=llama-server MiniMax-M2.7 math (port 8097, reasoning auto)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=sunil
+WorkingDirectory=/home/sunil
+ExecStart=/home/sunil/launch_8097_math.sh
+Restart=always
+RestartSec=10
+StandardOutput=append:/home/sunil/minimax_8097.log
+StandardError=append:/home/sunil/minimax_8097.log
+
+[Install]
+WantedBy=multi-user.target
